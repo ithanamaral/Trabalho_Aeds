@@ -138,10 +138,12 @@ void menu(){
     printf("Escolha uma opcao: ");
 }
 
-int main(int argc, char const *argv[]){
+int main(){
 
     TArvore arvore;
     arvore.raiz = NULL;
+    TCidade PesquisarCidade;
+    char PesquisarNome[25];
 
     // Inserindo as cidades pré-definidas automaticamente na árvore
     for(int i = 0; i < 5; i++){
@@ -167,11 +169,29 @@ int main(int argc, char const *argv[]){
                 printf("Impressao em Pos-Ordem:\n");
                 PosOrdem(arvore.raiz);
                 break;
+            case 4:
+                printf("Insira o nome da cidade: ");
+                scanf("%s", PesquisarNome);
+
+                strcpy(PesquisarCidade.nome, PesquisarNome);
+
+                TCelula *r = Pesquisar(arvore.raiz, PesquisarCidade);
+
+                if(r != NULL){
+                    printf("\n Cidade encontrada: %s\n", r->item.nome);
+                    printf("Eventos:\n");
+                    for(int i = 0; i < 3; i++){
+                        printf("- %s, Nota %.2f\n", r->item.evento[i].nome, r->item.nota[i]);
+                    }
+                } else{
+                    printf("Cidade nao encontrada!\n");
+                }
+                break;
             case 10:
                 printf("Saindo do Programa..\n");
                 break;
             default:
-                printf("Opção inválida!\n");
+                printf("Opcao invalida!\n");
         }
     } while (opcao != 10);
     
