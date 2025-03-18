@@ -122,7 +122,6 @@ TCelula *criaNo(TCidade cidade) {
   return novoNo;
 }
 
-<<<<<<< HEAD
 void menu(){
     printf("\nMENU:\n");
     printf("1 - Imprimir Arvore (Caminhamento Central)\n");
@@ -191,71 +190,4 @@ int main(){
     } while (opcao != 10);
     
     return 0;
-=======
-void Inserir(TCelula **x, TCelula *pai, TCidade cidade) {
-  if ((*x) == NULL) {
-    (*x) = criaNo(cidade);
-    if (pai != NULL) {
-      (*x)->pai = pai;
-    }
-    return;
-  }
-  if (strcmp((*x)->item.nome, cidade.nome) > 0) {
-    Inserir(&(*x)->esq, (*x), cidade);
-    return;
-  }
-  if (strcmp((*x)->item.nome, cidade.nome) <= 0) {
-    Inserir(&(*x)->dir, (*x), cidade);
-  }
-}
-
-void menu() {
-  printf("\nMENU:\n");
-  printf("1 - Imprimir Arvore (Caminhamento Central)\n");
-  printf("2 - Imprimir Arvore (Pre-Ordem)\n");
-  printf("3 - Imprimir Arvore (Pos-Ordem)\n");
-  printf("4 - Pesquisar Cidade\n");
-  printf("10 - Sair do Programa\n\n");
-  printf("Escolha uma opcao: ");
-}
-
-int main(int argc, char const *argv[]) {
-
-  TArvore arvore;
-  arvore.raiz = NULL;
-
-  // Inserindo as cidades pré-definidas automaticamente na árvore
-  for (int i = 0; i < 5; i++) {
-    Inserir(&arvore.raiz, NULL, cidades[i]);
-  }
-
-  int opcao;
-
-  do {
-    menu();
-    scanf("%d", &opcao);
-
-    switch (opcao) {
-    case 1:
-      printf("Impressao em Ordem Central:\n");
-      Central(arvore.raiz);
-      break;
-    case 2:
-      printf("Impressao em Pre-Ordem:\n");
-      PreOrdem(arvore.raiz);
-      break;
-    case 3:
-      printf("Impressao em Pos-Ordem:\n");
-      PosOrdem(arvore.raiz);
-      break;
-    case 10:
-      printf("Saindo do Programa..\n");
-      break;
-    default:
-      printf("Opção inválida!\n");
-    }
-  } while (opcao != 10);
-
-  return 0;
->>>>>>> fbec8579e0c0786819f91ea6443122a13bff1132
 }
