@@ -132,6 +132,230 @@ void menu(){
     printf("Escolha uma opcao: ");
 }
 
+void menuOrdenacao(){
+  printf("\nMENU:\n");
+  printf("1 - Selection\n");
+  printf("2 - Insertion\n");
+  printf("3 - Shellsort\n");
+  printf("4 - Heapsort\n");
+  printf("5 - Quicksort\n");
+  printf("6 - Bubblesort\n");
+  printf("7 - Mergesort\n");
+}
+
+//------------------------------------------- CODIGOS DE ALGORITMO DE ORDENHAÇÃO -------------------------------------------
+
+void Selecao(TCidade *A, int n){
+  int i, j, Min;
+  TCidade x;
+  for(i = 1; i <= n; j++){
+    Min = i;
+    if(A[j].nota > A[Min].nota){ //Trocar ordem - TROCADO
+      Min = j;
+    }
+    // Movimentação
+    x = A[Min];
+    A[Min] = A[i];
+    A[i] = x;
+  }
+}
+
+// ------------------------------------------- INSERTION -------------------------------------------
+
+void Insercao(TCidade *A, int n){
+  int i, j;
+  TCidade x;
+  for(i = 2; i <= n; i++){
+    x = A[i];
+    j = i - 1;
+    A[0] = x; /* Sentinela */
+    while(x.nota > A[j].nota){ //Trocar ordem - TROCADO
+      A[j+1] = A[j]; //Movimentação
+      j--;
+    }
+    A[j+1] = x; //Inserção
+  }
+}
+
+// ------------------------------------------- SHELLSORT -------------------------------------------
+
+void Shellsort(TCidade *A, int n){
+  int i, j;
+  int h = 1;
+  TCidade x;
+  do{
+    h = h * 3 + 1;
+  }while(h < n);
+  do{
+    h /= 3;
+    for(i = h + 1; i <= n; i++){
+      x = A[i];
+      j = i;
+      while (A[j-h].nota < x.nota){ //Trocar ordem - TROCADO
+        A[j] = A[j-h];
+        j -= h;
+        if(j <= h){
+          goto L999;
+        }
+      }
+      L999: A[j] = x;
+    }
+  } while(h != 1);
+}
+
+// ------------------------------------------- HEAPSORT -------------------------------------------
+
+void MaxHeapify(TCidade *A, int i, int n){
+  TCidade aux;
+  int esq = 2 * i;
+  int dir = 2 * i + 1;
+  int maior;
+  if( (A[i].nota > A[esq].nota) && (esq <= n) && (esq >= 1) ){ //Trocar ordem - TROCADO
+    maior = esq;
+  } else{
+    maior = i;
+  }
+  if( (A[maior].nota > A[dir].nota) && (dir <= n) && (dir >= 1) ){ //Trocar ordem - TROCADO
+    maior = dir;
+  }
+  if(maior != i){
+    aux = A[maior];
+    A[maior] = A[i];
+    A[i] = aux;
+    MaxHeapify(A, maior, n);
+  }
+}
+
+void BuildMaxHeap(TCidade *A, int n){
+  int i;
+  for(i = n/2; i > 0; i--){
+    MaxHeapify(A, i, n);
+  }
+}
+
+void HeapSort(TCidade *A, int n){
+  TCidade aux;
+  int tam = n;
+  int i;
+  BuildMaxHeap(A, n);
+  for(i = 1; i <= n - 1; i++){
+    aux = A[1];
+    A[1] = A[tam];
+    A[tam] = aux;
+    tam--;
+    MaxHeapify(A, 1, tam);
+  }
+}
+
+// ------------------------------------------- QUICKSORT -------------------------------------------
+int Particao(TCidade *A, int p, int r){
+  TCidade x, Aux;
+  int i, j;
+  x = A[r];
+  i = p - 1;
+  for(j = p; j < r; j++){
+    if(A[j].nota <= x.nota){ //Controla crescente/decrescente
+      i = i + 1;
+      Aux = A[i];
+      A[i] = A[j];
+      A[j] = Aux;
+    }
+  }
+  Aux = A[i + 1];
+  A[i + 1] = A[r];
+  A[r] = Aux;
+  return i + 1;
+}
+
+void Quicksort(TCidade *A, int p, int r){
+  int q;
+  if(p < r){
+    q = Particao(A, p, r);
+    Quicksort(A, p, q - 1);
+    Quicksort(A, q + 1, r);
+  }
+}
+
+// ------------------------------------------- BUBBLESORT -------------------------------------------
+
+void Bubblesort(TCidade A[], int n){
+  TCidade x;
+  int i, j;
+  for(i = 1; i < n; i++){
+      for(j = n; j > i; j--){
+          if(A[j].nota < A[j - 1].nota){ //Trocar ordem - TROCADO
+              x = A[j];
+              A[j] = A[j - 1];
+              A[j - 1] = x;
+          }
+      }
+    }
+}
+
+// ------------------------------------------- MERGESORT -------------------------------------------
+
+void Merge(TCidade *A, int l, int m, int r, int nota) {
+  int i, j, k;
+  int n1 = m - l + 1;
+  int n2 = r - m;
+
+  // Criando arrays temporários para armazenar as cidades
+  TCidade L[n1], R[n2];
+
+  // Copiando os dados para os arrays temporários
+  for (i = 0; i < n1; i++) {
+      L[i] = A[l + i];
+  }
+  for (j = 0; j < n2; j++) {
+      R[j] = A[m + 1 + j];
+  }
+
+  // Juntando os arrays ordenados de volta no vetor original
+  i = 0;
+  j = 0;
+  k = l;
+
+  while (i < n1 && j < n2) {
+      if (L[i].nota[nota] <= R[j].nota[nota]) { //Trocar ordem - TROCADO
+          A[k] = L[i];
+          i++;
+      } else {
+          A[k] = R[j];
+          j++;
+      }
+      k++;
+  }
+
+  // Copiando os elementos restantes de L[], se houver
+  while (i < n1) {
+      A[k] = L[i];
+      i++;
+      k++;
+  }
+
+  // Copiando os elementos restantes de R[], se houver
+  while (j < n2) {
+      A[k] = R[j];
+      j++;
+      k++;
+  }
+}
+
+void MergeSort(TCidade *A, int l, int r, int nota) {
+  if (l < r) {
+      int m = l + (r - l) / 2;
+
+      // Ordena as metades
+      MergeSort(A, l, m, nota);
+      MergeSort(A, m + 1, r, nota);
+
+      // Junta as metades ordenadas
+      Merge(A, l, m, r, nota);
+  }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 int main(){
 
     TArvore arvore;
