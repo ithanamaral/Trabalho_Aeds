@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct evento {
   char nome[50];
@@ -9,27 +10,32 @@ typedef struct evento {
 typedef struct cidade {
   char nome[25];
   TEvento evento[3]; // Lista de eventos
-  double nota[3];
+  float nota[3];
 } TCidade;
 
-TCidade cidades[5] = {
+TCidade cidades[7] = {
+    {"Anliy City",
+      {{"Curso de Japones"}, {"Rodizio de Sushi"}, {"Conhecendo o Goku"}},
+      {0, 0, 0}},
+    {"Belem",
+      {{"Escalar Montanha"}, {"Bungee Jump"}, {"Paraquedismo"}},
+      {0, 0, 0}},
     {"Caratinga",
      {{"Evento Cultural"}, {"Festa Junina"}, {"Evento de Caridade"}},
-     {9.5, 7.8, 8.4}},
-    {"Inhapim",
-     {{"Festival de Verao"},
-      {"Tarde de Sorvete"},
-      {"Festival de Motocicletas"}},
-     {9.0, 9.6, 8.0}},
-    {"Ubaporanga",
-     {{"Carnaval"}, {"Festival Cinema"}, {"Evento Geek"}},
-     {7.5, 6.8, 7.2}},
-    {"Belo Campo",
+     {0, 0, 0}},
+    {"Campo Belo",
      {{"Musica Classica"}, {"Festival de Rock"}, {"Recital de Poesia"}},
-     {9.7, 9.0, 9.2}},
+     {0, 0, 0}},
+    {"Inhapim",
+     {{"Festival de Verao"}, {"Tarde de Sorvete"}, {"Festival de Motocicletas"}},
+     {0, 0, 0}},
     {"Ponte Nova",
      {{"Rodizio de Pizza"}, {"Jogo de Futebol"}, {"Parada Gay"}},
-     {9.3, 7.4, 7.0}}};
+     {0, 0, 0}},
+    {"Ubaporanga",
+     {{"Carnaval"}, {"Festival Cinema"}, {"Evento Geek"}},
+     {0, 0, 0}}
+    };
 
 typedef struct celula {
   TCidade item;
@@ -122,6 +128,33 @@ TCelula *criaNo(TCidade cidade) {
   return novoNo;
 }
 
+void Inserir(TCelula **x, TCelula *pai, TCidade A) {
+  if ((*x) == NULL) {
+      (*x) = criaNo(A);
+      if (pai != NULL)
+          (*x)->pai = pai;
+      return;
+  }
+
+  if ((*x)->item.nota > A.nota) {
+      Inserir(&(*x)->esq, (*x), A);
+      return;
+  }
+
+  if ((*x)->item.nota <= A.nota) {
+      Inserir(&(*x)->dir, (*x), A);
+  }
+}
+
+void gerarNotas() {
+  //Foi necessário essa função porque em C não dá pra colocar o rand dentro de TCidades
+  for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 3; j++) {
+          cidades[i].nota[j] = (rand() % 101) / 10.0;
+      }
+  }
+}
+
 void menu(){
     printf("\nMENU:\n");
     printf("1 - Imprimir Arvore (Caminhamento Central)\n");
@@ -132,26 +165,29 @@ void menu(){
     printf("Escolha uma opcao: ");
 }
 
-void menuOrdenacao(){
-  printf("\nMENU:\n");
-  printf("1 - Selection\n");
-  printf("2 - Insertion\n");
-  printf("3 - Shellsort\n");
-  printf("4 - Heapsort\n");
-  printf("5 - Quicksort\n");
-  printf("6 - Bubblesort\n");
-  printf("7 - Mergesort\n");
+void menuOrdenacoes(){
+  printf("\nEscolha o metodo:\n");
+      printf("1 - Selection\n");
+      printf("2 - Insertion\n");
+      printf("3 - Shellsort\n");
+      printf("4 - Heapsort\n");
+      printf("5 - Quicksort\n");
+      printf("6 - Bubblesort\n");
+      printf("7 - Mergesort\n");
 }
+
 
 //------------------------------------------- CODIGOS DE ALGORITMO DE ORDENHAÇÃO -------------------------------------------
 
-void Selecao(TCidade *A, int n){
+void Selecao(float *A, int n) {
   int i, j, Min;
-  TCidade x;
-  for(i = 1; i <= n; j++){
+  float x;
+  for(i = 0; i < n - 1; i++) {
     Min = i;
-    if(A[j].nota > A[Min].nota){ //Trocar ordem - TROCADO
-      Min = j;
+    for (j = i + 1; j < n; j++) {
+      if (A[j] > A[Min]) { // Troca ordem para ordenar de forma decrescente
+        Min = j;
+      }
     }
     // Movimentação
     x = A[Min];
@@ -160,117 +196,111 @@ void Selecao(TCidade *A, int n){
   }
 }
 
+
 // ------------------------------------------- INSERTION -------------------------------------------
 
-void Insercao(TCidade *A, int n){
+void Insercao(float *A, int n) {
   int i, j;
-  TCidade x;
-  for(i = 2; i <= n; i++){
+  float x;
+  for(i = 1; i < n; i++) {
     x = A[i];
     j = i - 1;
-    A[0] = x; /* Sentinela */
-    while(x.nota > A[j].nota){ //Trocar ordem - TROCADO
-      A[j+1] = A[j]; //Movimentação
+    while (j >= 0 && A[j] < x) { // Troca ordem
+      A[j + 1] = A[j];  // Movimentação
       j--;
     }
-    A[j+1] = x; //Inserção
+    A[j + 1] = x; // Inserção
   }
 }
+
+
 
 // ------------------------------------------- SHELLSORT -------------------------------------------
 
-void Shellsort(TCidade *A, int n){
-  int i, j;
-  int h = 1;
-  TCidade x;
-  do{
+void Shellsort(float *A, int n) {
+  int i, j, h = 1;
+  float x;
+  do {
     h = h * 3 + 1;
-  }while(h < n);
-  do{
+  } while (h < n);
+  
+  do {
     h /= 3;
-    for(i = h + 1; i <= n; i++){
+    for(i = h; i < n; i++) {
       x = A[i];
       j = i;
-      while (A[j-h].nota < x.nota){ //Trocar ordem - TROCADO
-        A[j] = A[j-h];
+      while (j >= h && A[j - h] < x) { // Troca ordem
+        A[j] = A[j - h];
         j -= h;
-        if(j <= h){
-          goto L999;
-        }
       }
-      L999: A[j] = x;
+      A[j] = x;
     }
-  } while(h != 1);
+  } while (h > 1);
 }
+
 
 // ------------------------------------------- HEAPSORT -------------------------------------------
 
-void MaxHeapify(TCidade *A, int i, int n){
-  TCidade aux;
-  int esq = 2 * i;
-  int dir = 2 * i + 1;
-  int maior;
-  if( (A[i].nota > A[esq].nota) && (esq <= n) && (esq >= 1) ){ //Trocar ordem - TROCADO
+void MaxHeapify(float *A, int i, int n) {
+  int esq = 2 * i + 1, dir = 2 * i + 2, maior;
+  
+  if (esq < n && A[esq] > A[i]) {
     maior = esq;
-  } else{
+  } else {
     maior = i;
   }
-  if( (A[maior].nota > A[dir].nota) && (dir <= n) && (dir >= 1) ){ //Trocar ordem - TROCADO
+  if (dir < n && A[dir] > A[maior]) {
     maior = dir;
   }
-  if(maior != i){
-    aux = A[maior];
-    A[maior] = A[i];
-    A[i] = aux;
+  if (maior != i) {
+    float temp = A[i];
+    A[i] = A[maior];
+    A[maior] = temp;
     MaxHeapify(A, maior, n);
   }
 }
 
-void BuildMaxHeap(TCidade *A, int n){
+void BuildMaxHeap(float *A, int n) {
   int i;
-  for(i = n/2; i > 0; i--){
+  for(i = n / 2 - 1; i >= 0; i--) {
     MaxHeapify(A, i, n);
   }
 }
 
-void HeapSort(TCidade *A, int n){
-  TCidade aux;
-  int tam = n;
-  int i;
-  BuildMaxHeap(A, n);
-  for(i = 1; i <= n - 1; i++){
-    aux = A[1];
-    A[1] = A[tam];
-    A[tam] = aux;
-    tam--;
-    MaxHeapify(A, 1, tam);
+void HeapSort(float *A, int n) {
+  for (int i = n / 2 - 1; i >= 0; i--) {
+    MaxHeapify(A, i, n);
+  }
+  for (int i = n - 1; i >= 1; i--) {
+    float temp = A[0];
+    A[0] = A[i];
+    A[i] = temp;
+    MaxHeapify(A, 0, i);
   }
 }
 
 // ------------------------------------------- QUICKSORT -------------------------------------------
-int Particao(TCidade *A, int p, int r){
-  TCidade x, Aux;
-  int i, j;
-  x = A[r];
-  i = p - 1;
-  for(j = p; j < r; j++){
-    if(A[j].nota <= x.nota){ //Controla crescente/decrescente
-      i = i + 1;
-      Aux = A[i];
+int Particao(float *A, int p, int r) {
+  float x = A[r];
+  int i = p - 1;
+  for (int j = p; j < r; j++) {
+    if (A[j] >= x) { // Troca ordem para maior valor na frente
+      i++;
+      float temp = A[i];
       A[i] = A[j];
-      A[j] = Aux;
+      A[j] = temp;
     }
   }
-  Aux = A[i + 1];
+  float temp = A[i + 1];
   A[i + 1] = A[r];
-  A[r] = Aux;
+  A[r] = temp;
   return i + 1;
 }
 
-void Quicksort(TCidade *A, int p, int r){
-  int q;
-  if(p < r){
-    q = Particao(A, p, r);
+
+void Quicksort(float *A, int p, int r) {
+  if (p < r) {
+    int q = Particao(A, p, r);
     Quicksort(A, p, q - 1);
     Quicksort(A, q + 1, r);
   }
@@ -278,85 +308,154 @@ void Quicksort(TCidade *A, int p, int r){
 
 // ------------------------------------------- BUBBLESORT -------------------------------------------
 
-void Bubblesort(TCidade A[], int n){
-  TCidade x;
-  int i, j;
-  for(i = 1; i < n; i++){
-      for(j = n; j > i; j--){
-          if(A[j].nota < A[j - 1].nota){ //Trocar ordem - TROCADO
-              x = A[j];
-              A[j] = A[j - 1];
-              A[j - 1] = x;
-          }
+void Bubblesort(float A[], int n) {
+  float x;
+  for (int i = 0; i < n - 1; i++) {
+    for (int j = 0; j < n - i - 1; j++) {
+      if (A[j] < A[j + 1]) { // Troca ordem para maior valor na frente
+        x = A[j];
+        A[j] = A[j + 1];
+        A[j + 1] = x;
       }
     }
+  }
 }
 
 // ------------------------------------------- MERGESORT -------------------------------------------
 
-void Merge(TCidade *A, int l, int m, int r, int nota) {
-  int i, j, k;
-  int n1 = m - l + 1;
-  int n2 = r - m;
-
-  // Criando arrays temporários para armazenar as cidades
-  TCidade L[n1], R[n2];
-
-  // Copiando os dados para os arrays temporários
-  for (i = 0; i < n1; i++) {
-      L[i] = A[l + i];
-  }
-  for (j = 0; j < n2; j++) {
-      R[j] = A[m + 1 + j];
-  }
-
-  // Juntando os arrays ordenados de volta no vetor original
-  i = 0;
-  j = 0;
-  k = l;
-
+void Merge(float *A, int l, int m, int r) {
+  int n1 = m - l + 1, n2 = r - m;
+  float L[n1], R[n2];
+  for (int i = 0; i < n1; i++) L[i] = A[l + i];
+  for (int j = 0; j < n2; j++) R[j] = A[m + 1 + j];
+  
+  int i = 0, j = 0, k = l;
   while (i < n1 && j < n2) {
-      if (L[i].nota[nota] <= R[j].nota[nota]) { //Trocar ordem - TROCADO
-          A[k] = L[i];
-          i++;
-      } else {
-          A[k] = R[j];
-          j++;
-      }
-      k++;
-  }
-
-  // Copiando os elementos restantes de L[], se houver
-  while (i < n1) {
+    if (L[i] >= R[j]) { // Troca ordem
       A[k] = L[i];
       i++;
-      k++;
-  }
-
-  // Copiando os elementos restantes de R[], se houver
-  while (j < n2) {
+    } else {
       A[k] = R[j];
       j++;
-      k++;
+    }
+    k++;
+  }
+
+  while (i < n1) {
+    A[k] = L[i];
+    i++;
+    k++;
+  }
+  while (j < n2) {
+    A[k] = R[j];
+    j++;
+    k++;
   }
 }
 
-void MergeSort(TCidade *A, int l, int r, int nota) {
+void MergeSort(float *A, int l, int r) {
   if (l < r) {
-      int m = l + (r - l) / 2;
-
-      // Ordena as metades
-      MergeSort(A, l, m, nota);
-      MergeSort(A, m + 1, r, nota);
-
-      // Junta as metades ordenadas
-      Merge(A, l, m, r, nota);
+    int m = l + (r - l) / 2;
+    MergeSort(A, l, m);
+    MergeSort(A, m + 1, r);
+    Merge(A, l, m, r);
   }
 }
+
+void aplicarOrdenacao(TCidade cidades[], int opcao, TArvore *arvore){
+    for(int i = 0; i < 7; i++){
+      switch(opcao){
+        case 1:
+          Selecao(cidades[i].nota, 3);
+          break;
+        case 2:
+          Insercao(cidades[i].nota, 3);
+          break;
+        case 3:
+          Shellsort(cidades[i].nota, 3);
+          break;
+        case 4:
+          HeapSort(cidades[i].nota, 3);
+          break;
+        case 5:
+          Quicksort(cidades[i].nota, 0, 2);
+          break;
+        case 6:
+          Bubblesort(cidades[i].nota, 3);
+          break;
+        case 7:
+          MergeSort(cidades[i].nota, 0, 2);
+          break;
+        default:
+          printf("Opcao Invalida!");
+          return;
+          break;
+      }
+    }
+
+    arvore->raiz = NULL;
+    for(int i = 0; i < 5; i++){
+        Inserir(&arvore->raiz, NULL, cidades[i]);
+    } //Os elementos precisam ser reinseridos mas dessa vez na ordem correta
+  
+    printf("Notas das cidades ordenadas!");
+  }
+
+void aplicarOrdenacaoOpcao2(TCidade cidades[], int opcao, TArvore *arvore){
+
+    // Para cada cidade, escolhe o método de ordenação
+    for (int i = 0; i < 7; i++) {
+        printf("\nEscolha um método de ordenação para as notas da cidade %s:\n", cidades[i].nome);
+        menuOrdenacoes();
+        scanf("%d", &opcao);
+
+        // Aplica o método de ordenação escolhido para a cidade
+        switch(opcao) {
+            case 1:
+                Selecao(cidades[i].nota, 3);
+                break;
+            case 2:
+                Insercao(cidades[i].nota, 3);
+                break;
+            case 3:
+                Shellsort(cidades[i].nota, 3);
+                break;
+            case 4:
+                HeapSort(cidades[i].nota, 3);
+                break;
+            case 5:
+                Quicksort(cidades[i].nota, 0, 2);
+                break;
+            case 6:
+                Bubblesort(cidades[i].nota, 3);
+                break;
+            case 7:
+                MergeSort(cidades[i].nota, 0, 2);
+                break;
+            default:
+                printf("Método de ordenação inválido!\n");
+                break;
+        }
+
+        // Após ordenar as notas da cidade, reinseri-la na árvore igual aplicarOrdenacao
+        arvore->raiz = NULL;
+        for (int j = 0; j < 7; j++) {
+            Inserir(&arvore->raiz, NULL, cidades[j]);
+        }
+
+        printf("\nNotas da cidade %s ordenadas!\n", cidades[i].nome);
+    }
+
+    printf("\nÁrvore de cidades atualizada com as novas notas ordenadas!\n");
+}
+
 
 // ------------------------------------------------------------------------------------------------
 
 int main(){
+
+    srand(time(NULL)); //Faz com que os valores randomizados das notas não sejam sempre os mesmos
+    gerarNotas();
 
     TArvore arvore;
     arvore.raiz = NULL;
@@ -369,6 +468,26 @@ int main(){
     }
 
     int opcao;
+
+    printf("\n\n\n\n--------------------Bem vindo ao nosso roteiro de viagem inteligente!--------------------\n\n");
+    printf("Primeiro, vamos escolher como vamos ordenar as notas dos eventos para cada cidade! Escolha entre:\n");
+    printf("1 - Usar apenas um metodo de ordenacao para as cidades\n");
+    printf("2 - Usar um metodo de ordenacao para cada cidade\n");
+
+    scanf("%d", &opcao);
+
+    if(opcao == 1){
+      menuOrdenacoes();
+      scanf("%d", &opcao);
+      aplicarOrdenacao(cidades, opcao, &arvore);
+    } else if(opcao == 2){
+        menuOrdenacoes();
+        scanf("%d", &opcao);
+        aplicarOrdenacaoOpcao2(cidades, opcao, &arvore);
+    }
+
+
+
 
     do {
         menu();
